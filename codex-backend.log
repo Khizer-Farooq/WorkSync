@@ -1,0 +1,25 @@
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:53 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:53 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +130ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:53 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSequelizeModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:53 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:53 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:53 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:53 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSequelizeCoreModule dependencies initialized[39m[38;5;3m +136ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSequelizeModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSequelizeModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDepartmentsModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mDepartmentsController {/api/departments}:[39m[38;5;3m +30ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/departments, POST} route[39m[38;5;3m +5ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/departments, GET} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/departments/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUsersController {/api/users}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/users/employees, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/users/employees, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/users/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/api/auth}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/login, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/me, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 17780  - [39m05/19/2026, 4:00:54 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +3ms[39m
