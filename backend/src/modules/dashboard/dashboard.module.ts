@@ -11,6 +11,7 @@ import { Shift } from '../shifts/entities/shift.model';
 import { Activity } from './entities/activity.model';
 import { User } from '../users/entities/user.model';
 import { ActivityService } from './activity.service';
+
 @Module({
   imports: [
     SequelizeModule.forFeature([

@@ -15,7 +15,8 @@ export class ActivityService {
     entityType: string;
     entityId?: number;
     metadata?: any;
-  }) {
+  }) 
+  {
     return this.activityModel.create({
       userId: data.userId ?? null,
       action: data.action,
