@@ -9,17 +9,12 @@ type AuthState = {
 };
 
 const initialState: AuthState = {
-  token:
-    typeof window !== "undefined"
-      ? Cookies.get(TOKEN_KEY) || null
-      : null,
-
+  token: typeof window !== "undefined" ? Cookies.get(TOKEN_KEY) || null : null,
   user: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
-
   initialState,
 
   reducers: {
@@ -33,14 +28,14 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.user = action.payload.user;
 
-      Cookies.set(
-        TOKEN_KEY,
-        action.payload.token,
-        {
-          expires: 7,
-          sameSite: "lax",
-        }
-      );
+      Cookies.set(TOKEN_KEY, action.payload.token, {
+        expires: 7,
+        sameSite: "lax",
+      });
+    },
+
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
     },
 
     logout: (state) => {
@@ -52,7 +47,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout } =
-  authSlice.actions;
-
+export const { setCredentials, setUser, logout } = authSlice.actions;
 export default authSlice.reducer;

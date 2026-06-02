@@ -14,6 +14,10 @@ export class ProjectQueryDto {
 
   @IsString()
   @IsOptional()
+  search?: string;
+  
+  @IsString()
+  @IsOptional()
   sortBy?: string;
 
   @IsString()

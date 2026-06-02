@@ -213,15 +213,15 @@ export class ShiftsService {
     startOfWeek.setDate(today.getDate() - today.getDay());
     startOfWeek.setHours(0, 0, 0, 0);
 
-    const endOfWeek = new Date(today);
-    endOfWeek.setHours(23, 59, 59, 999);
+    const endOfToday = new Date(today);
+    endOfToday.setHours(23, 59, 59, 999);
 
     const whereCondition: any = {
       clockOut: {
         [Op.ne]: null,
       },
       clockIn: {
-        [Op.between]: [startOfWeek, endOfWeek],
+        [Op.between]: [startOfWeek, endOfToday],
       },
     };
 

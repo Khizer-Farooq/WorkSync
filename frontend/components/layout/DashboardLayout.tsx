@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+
 import AppHeader from "./AppHeader";
 import AppSidebar from "./AppSidebar";
 import AppFooter from "./AppFooter";
-import Cookies from "js-cookie";
 
+import { TOKEN_KEY } from "@/lib/constants";
+import { setUser } from "@/redux/features/authSlice";
+import { useGetMeQuery } from "@/redux/services/authApi";
+import type { RootState } from "@/redux/store";
 
 export default function DashboardLayout({
   children,
@@ -16,23 +20,39 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  const token = Cookies.get("TOKEN_KEY");
+  const token = Cookies.get(TOKEN_KEY);
+  const user = useSelector((state: RootState) => state.auth.user);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  const { data, isLoading, isError } = useGetMeQuery(undefined, {
+    skip: !token,
+  });
 
   useEffect(() => {
     if (!token) {
       router.replace("/login");
-    } else {
-      setCheckingAuth(false);
     }
-  }, [router]);
+  }, [token, router]);
 
-  if (checkingAuth) {
+  useEffect(() => {
+    if (data?.data) {
+      dispatch(setUser(data.data));
+    }
+  }, [data, dispatch]);
+
+  useEffect(() => {
+    if (isError) {
+      router.replace("/login");
+    }
+  }, [isError, router]);
+
+  if (!token || isLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-sm text-gray-500">Checking authentication...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-sm text-gray-500">Loading workspace...</p>
       </div>
     );
   }
@@ -44,7 +64,7 @@ export default function DashboardLayout({
         onClose={() => setSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader onMenuClick={() => setSidebarOpen(true)} />
 
         <main className="flex-1 p-4 lg:p-6">{children}</main>

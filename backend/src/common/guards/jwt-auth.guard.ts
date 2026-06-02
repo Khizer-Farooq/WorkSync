@@ -39,6 +39,7 @@ export class JwtAuthGuard implements CanActivate {
       if (
         !Number.isInteger(userId) ||
         typeof decoded.email !== 'string' ||
+        typeof decoded.name !== 'string' ||
         !Object.values(UserRole).includes(role as UserRole)
       ) {
         throw new UnauthorizedException('Invalid token payload');
@@ -47,6 +48,7 @@ export class JwtAuthGuard implements CanActivate {
       const user: CurrentUser = {
         id: userId,
         email: decoded.email,
+        name: decoded.name,
         role: role as UserRole,
       };
 

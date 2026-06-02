@@ -61,6 +61,31 @@ export class ProjectsService {
       data: project,
     };
   }
+
+  async remove(id: number, currentUser: CurrentUser) {
+  const project = await this.projectModel.findByPk(id);
+
+  if (!project) {
+    throw new NotFoundException('Project not found');
+  }
+
+  await project.destroy();
+
+  await this.activityService.createActivity({
+    userId: currentUser.id,
+    action: 'PROJECT_DELETED',
+    entityType: 'PROJECT',
+    entityId: id,
+    metadata: {
+      title: project.title,
+    },
+  });
+
+  return {
+    message: 'Project deleted successfully',
+    data: null,
+  };
+}
   async removeMember(projectId: number, userId: number, currentUser: CurrentUser) {
   const project = await this.projectModel.findByPk(projectId);
 
@@ -108,9 +133,24 @@ export class ProjectsService {
 
     const whereCondition: any = {};
 
+    
     if (query.status) {
       whereCondition.status = query.status;
     }
+    if (query.search) {
+  whereCondition[Op.or] = [
+    {
+      title: {
+        [Op.iLike]: `%${query.search}%`,
+      },
+    },
+    {
+      description: {
+        [Op.iLike]: `%${query.search}%`,
+      },
+    },
+  ];
+}
 
     if (currentUser.role === UserRole.ADMIN) {
       const { rows, count } = await this.projectModel.findAndCountAll({
@@ -147,6 +187,7 @@ export class ProjectsService {
         },
       };
     }
+    
 
     const { rows, count } = await this.projectModel.findAndCountAll({
       where: whereCondition,
@@ -157,6 +198,7 @@ export class ProjectsService {
           where: {
             id: currentUser.id,
           },
+          required: true,
           attributes: ['id', 'name', 'email', 'role'],
           through: { attributes: [] },
         },
@@ -313,4 +355,7 @@ export class ProjectsService {
       ignoreDuplicates: true,
     });
   }
+
+  
 }
+

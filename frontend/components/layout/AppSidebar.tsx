@@ -1,36 +1,9 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  FolderKanban,
-  CheckSquare,
-  Clock,
-} from "lucide-react";
-
-const menuItems = [
-  {
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Projects",
-    href: "/projects",
-    icon: FolderKanban,
-  },
-  {
-    label: "Tasks",
-    href: "/tasks",
-    icon: CheckSquare,
-  },
-  {
-    label: "Shifts",
-    href: "/shifts",
-    icon: Clock,
-  },
-];
+import {LayoutDashboard,FolderKanban,CheckSquare,Clock,UserPlus,} from "lucide-react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 
 type Props = {
   isOpen: boolean;
@@ -39,30 +12,67 @@ type Props = {
 
 export default function AppSidebar({ isOpen, onClose }: Props) {
   const pathname = usePathname();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const menuItems = [
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+      roles: ["ADMIN", "EMPLOYEE"],
+    },
+    {
+      label: "Projects",
+      href: "/projects",
+      icon: FolderKanban,
+      roles: ["ADMIN", "EMPLOYEE"],
+    },
+    {
+      label: "Tasks",
+      href: "/tasks",
+      icon: CheckSquare,
+      roles: ["ADMIN", "EMPLOYEE"],
+    },
+    {
+      label: "Shifts",
+      href: "/shifts",
+      icon: Clock,
+      roles: ["ADMIN", "EMPLOYEE"],
+    },
+    {
+      label: "Register Employee",
+      href: "/register",
+      icon: UserPlus,
+      roles: ["ADMIN"],
+    },
+  ];
+
+  const allowedMenuItems = menuItems.filter((item) =>
+    item.roles.includes(user?.role || "")
+  );
 
   return (
     <>
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
         />
       )}
 
       <aside
         className={`
-          fixed lg:static z-40 top-0 left-0 h-auto w-64 bg-gray-950 text-white
-          transform transition-transform duration-200
+          fixed left-0 top-0 z-40 h-auto w-64 bg-gray-950 text-white
+          transition-transform duration-200 lg:static lg:translate-x-0
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
         `}
       >
-        <div className="h-16 flex items-center px-5 border-b border-white/10">
+        <div className="h-16 flex items-center border-b border-white/10 px-5">
           <h2 className="text-xl font-bold">WorkSync</h2>
         </div>
 
-        <nav className="p-4 space-y-2">
-          {menuItems.map((item) => {
+        <nav className="space-y-2 p-4">
+          {allowedMenuItems.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
 

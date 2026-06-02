@@ -16,4 +16,6 @@ export class TaskStatus extends Model<TaskStatus> {
 
   @HasMany(() => Task)
   declare tasks: Task[];
+  
+  
 }

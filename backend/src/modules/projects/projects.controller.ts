@@ -84,4 +84,14 @@ removeMember(
   assignMembers(@Param('id') id: string, @Body() dto: AssignMembersDto) {
     return this.projectsService.assignMembers(Number(id), dto);
   }
+
+  @Delete(':id')
+@UseGuards(RolesGuard)
+@Roles(UserRole.ADMIN)
+remove(
+  @Param('id') id: string,
+  @GetCurrentUser() currentUser: CurrentUser,
+) {
+  return this.projectsService.remove(Number(id), currentUser);
+}
 }
