@@ -5,28 +5,21 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import UserSearchSelect from "@/components/shared/users/UserSearchSelect";
-import { useCreateProjectMutation } from "@/redux/services/projectApi";
+import ProjectSearchSelect from "@/components/shared/projects/ProjectSearchSelect";
+import { useCreateTaskMutation } from "@/redux/services/taskApi";
 import type { User } from "@/types/auth";
-
-import { z } from "zod";
-
-export const projectSchema = z.object({
-  title: z.string().min(1, "Project title is required"),
-  description: z.string().optional(),
-  deadline: z.string().optional(),
-});
-
-export type ProjectFormValues = z.infer<typeof projectSchema>;
-
+import type { Project } from "@/types/project";
+import { taskSchema, TaskFormValues } from "./task.schema";
 
 type Props = {
   onSuccess: () => void;
 };
 
-export default function ProjectCreateForm({ onSuccess }: Props) {
-  
+export default function TaskCreateForm({ onSuccess }: Props) {
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
-  const [createProject, { isLoading }] = useCreateProjectMutation();
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  const [createTask, { isLoading }] = useCreateTaskMutation();
 
   const {
     register,
@@ -34,30 +27,39 @@ export default function ProjectCreateForm({ onSuccess }: Props) {
     reset,
     setError,
     formState: { errors },
-  } = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectSchema),
+  } = useForm<TaskFormValues>({
+    resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
       description: "",
-      deadline: "",
+      dueDate: "",
     },
   });
 
-  async function onSubmit(values: ProjectFormValues) {
+  async function onSubmit(values: TaskFormValues) {
+    if (!selectedProject) {
+      setError("root", {
+        message: "Please select a project",
+      });
+      return;
+    }
+
     try {
-      await createProject({
+      await createTask({
+        projectId: selectedProject.id,
         title: values.title,
         description: values.description,
-        deadline: values.deadline || undefined,
-        memberIds: selectedUsers.map((user) => user.id),
+        dueDate: values.dueDate || undefined,
+        assignedUserIds: selectedUsers.map((user) => user.id),
       }).unwrap();
 
       reset();
       setSelectedUsers([]);
+      setSelectedProject(null);
       onSuccess();
     } catch {
       setError("root", {
-        message: "Project creation failed",
+        message: "Task creation failed",
       });
     }
   }
@@ -70,15 +72,19 @@ export default function ProjectCreateForm({ onSuccess }: Props) {
         </div>
       )}
 
+      <ProjectSearchSelect
+        selectedProject={selectedProject}
+        onChange={setSelectedProject}
+        title="Select Project"
+      />
+
       <div>
-        <label className="text-sm font-medium text-gray-700">
-          Project Name
-        </label>
+        <label className="text-sm font-medium text-gray-700">Task Title</label>
 
         <input
           {...register("title")}
           className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900"
-          placeholder="WorkSync Frontend"
+          placeholder="Create login API"
         />
 
         {errors.title && (
@@ -93,32 +99,32 @@ export default function ProjectCreateForm({ onSuccess }: Props) {
           {...register("description")}
           rows={3}
           className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900"
-          placeholder="Project description"
+          placeholder="Task description"
         />
       </div>
 
       <div>
-        <label className="text-sm font-medium text-gray-700">Deadline</label>
+        <label className="text-sm font-medium text-gray-700">Due Date</label>
 
         <input
-          {...register("deadline")}
+          {...register("dueDate")}
           type="date"
           className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900"
         />
       </div>
 
       <UserSearchSelect
-        title="Add Project Members"
+        title="Assign Users"
         selectedUsers={selectedUsers}
         onChange={setSelectedUsers}
       />
 
-      <div className="flex justify-end gap-3 pt-2">
+      <div className="flex justify-end">
         <button
           disabled={isLoading}
           className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white disabled:opacity-60"
         >
-          {isLoading ? "Creating..." : "Create Project"}
+          {isLoading ? "Creating..." : "Create Task"}
         </button>
       </div>
     </form>

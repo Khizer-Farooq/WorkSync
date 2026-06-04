@@ -56,18 +56,18 @@ export default function AppSidebar({ isOpen, onClose }: Props) {
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-30 bg-slate-900/40 lg:hidden"
         />
       )}
 
       <aside
         className={`
-          fixed left-0 top-0 z-40 h-auto w-64 bg-gray-950 text-white
+          fixed left-0 top-0 z-40 h-screen w-64 overflow-y-auto bg-slate-800 text-slate-50
           transition-transform duration-200 lg:static lg:translate-x-0
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
-        <div className="h-16 flex items-center border-b border-white/10 px-5">
+        <div className="h-16 flex items-center border-b border-slate-700 px-5">
           <h2 className="text-xl font-bold">WorkSync</h2>
         </div>
 
@@ -82,11 +82,11 @@ export default function AppSidebar({ isOpen, onClose }: Props) {
                 href={item.href}
                 onClick={onClose}
                 className={`
-                  flex items-center gap-3 rounded-lg px-3 py-2 text-sm
+                  flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors
                   ${
                     active
-                      ? "bg-white text-gray-950"
-                      : "text-gray-300 hover:bg-white/10"
+                      ? "bg-slate-700 text-white shadow-sm"
+                      : "text-slate-300 hover:text-white hover:bg-slate-700/50"
                   }
                 `}
               >

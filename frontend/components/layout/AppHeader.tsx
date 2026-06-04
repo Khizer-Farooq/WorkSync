@@ -22,19 +22,19 @@ export default function AppHeader({ onMenuClick }: Props) {
   }
 
   return (
-    <header className="h-16 bg-white border-b px-4 flex items-center justify-between">
+    <header className="h-16 bg-white border-b border-slate-200 px-4 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
-          className="lg:hidden rounded-lg border p-2"
+          className="lg:hidden rounded-lg border border-slate-300 p-2 text-slate-600 hover:bg-slate-50"
         >
           <Menu size={20} />
         </button>
 
         <div>
-          <h1 className="font-bold text-gray-900">WorkSync</h1>
-          <p className="hidden sm:block text-xs text-gray-500">
+          <h1 className="font-bold text-slate-900">WorkSync</h1>
+          <p className="hidden sm:block text-xs text-slate-600">
             Team Task & Shift Management
           </p>
         </div>
@@ -42,16 +42,16 @@ export default function AppHeader({ onMenuClick }: Props) {
 
       <div className="flex items-center gap-3">
         <div className="hidden sm:block text-right">
-          <p className="text-sm font-medium text-gray-900">
+          <p className="text-sm font-medium text-slate-900">
             {user?.name || "User"}
           </p>
-          <p className="text-xs text-gray-500">{user?.role || "Role"}</p>
+          <p className="text-xs text-slate-600">{user?.role || "Role"}</p>
         </div>
 
         <button
           type="button"
           onClick={handleLogout}
-          className="flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm text-white"
+          className="flex items-center gap-2 rounded-lg bg-slate-800 px-3 py-2 text-sm text-white shadow-sm hover:bg-slate-900 transition-colors"
         >
           <LogOut size={16} />
           <span className="hidden sm:inline">Logout</span>

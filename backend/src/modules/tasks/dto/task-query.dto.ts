@@ -14,6 +14,9 @@ export class TaskQueryDto {
   statusId?: string;
 
   @IsOptional()
+    search?: string;
+
+  @IsOptional()
   assignedUserId?: string;
 
   @IsOptional()

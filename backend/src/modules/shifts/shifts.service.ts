@@ -109,69 +109,114 @@ export class ShiftsService {
   }
 
   async findAll(query: ShiftQueryDto, currentUser: CurrentUser) {
-    const page = Number(query.page) || 1;
-    const limit = Number(query.limit) || 10;
-    const offset = (page - 1) * limit;
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const offset = (page - 1) * limit;
 
-    const sortBy = query.sortBy || 'createdAt';
-    const sortOrder = query.sortOrder === 'ASC' ? 'ASC' : 'DESC';
+  const allowedSortFields = ['createdAt', 'updatedAt', 'clockIn', 'clockOut'];
 
-    const whereCondition: any = {};
+const sortBy = allowedSortFields.includes(query.sortBy || '')
+  ? (query.sortBy as string)
+  : 'createdAt';
 
-    if (currentUser.role === UserRole.EMPLOYEE) {
-      whereCondition.userId = currentUser.id;
-    }
+const sortOrder = query.sortOrder === 'ASC' ? 'ASC' : 'DESC';
 
-    if (currentUser.role === UserRole.ADMIN && query.userId) {
-      whereCondition.userId = Number(query.userId);
-    }
+  const whereCondition: any = {};
 
-    if (query.fromDate && query.toDate) {
-      whereCondition.clockIn = {
-        [Op.between]: [
-          new Date(query.fromDate),
-          new Date(query.toDate),
-        ],
-      };
-    }
+  if (currentUser.role === UserRole.EMPLOYEE) {
+    whereCondition.userId = currentUser.id;
+  }
 
-    const { rows, count } = await this.shiftModel.findAndCountAll({
-      where: whereCondition,
-      include: [
-        {
-          model: User,
-          attributes: ['id', 'name', 'email', 'role'],
-        },
-      ],
-      limit,
-      offset,
-      order: [[sortBy, sortOrder]],
-      distinct: true,
-    });
+  if (currentUser.role === UserRole.ADMIN && query.userId) {
+    whereCondition.userId = Number(query.userId);
+  }
 
-    const shifts = rows.map((shift) => {
-      const plainShift = shift.toJSON() as any;
+  if (query.status === 'ACTIVE') {
+    whereCondition.clockOut = null;
+  }
 
-      plainShift.totalHours = shift.clockOut
-        ? this.calculateWorkedHours(shift.clockIn, shift.clockOut)
-        : null;
-
-      return plainShift;
-    });
-
-    return {
-      message: 'Shifts fetched successfully',
-      data: {
-        shifts,
-        pagination: {
-          total: count,
-          page,
-          limit,
-          totalPages: Math.ceil(count / limit),
-        },
-      },
+  if (query.status === 'COMPLETED') {
+    whereCondition.clockOut = {
+      [Op.ne]: null,
     };
   }
+
+  if (query.fromDate && query.toDate) {
+    const from = new Date(query.fromDate);
+    from.setHours(0, 0, 0, 0);
+
+    const to = new Date(query.toDate);
+    to.setHours(23, 59, 59, 999);
+
+    whereCondition.clockIn = {
+      [Op.between]: [from, to],
+    };
+  }
+
+  const userInclude: any = {
+    model: User,
+    attributes: ['id', 'name', 'email', 'role'],
+  };
+if (query.status === 'ACTIVE') {
+  whereCondition.clockOut = null;
+}
+
+if (query.status === 'COMPLETED') {
+  whereCondition.clockOut = {
+    [Op.ne]: null,
+  };
+}
+  if (query.search && currentUser.role === UserRole.ADMIN) {
+    userInclude.where = {
+      [Op.or]: [
+        {
+          name: {
+            [Op.iLike]: `%${query.search}%`,
+          },
+        },
+        {
+          email: {
+            [Op.iLike]: `%${query.search}%`,
+          },
+        },
+      ],
+    };
+  }
+
+  const { rows, count } = await this.shiftModel.findAndCountAll({
+    where: whereCondition,
+    include: [userInclude],
+    limit,
+    offset,
+    order: [[sortBy, sortOrder]],
+    distinct: true,
+  });
+
+  const shifts = rows.map((shift) => {
+    const plainShift = shift.toJSON() as any;
+
+    plainShift.status = shift.clockOut ? 'COMPLETED' : 'ACTIVE';
+
+    plainShift.totalHours = shift.clockOut
+      ? this.calculateWorkedHours(shift.clockIn, shift.clockOut as Date)
+      : null;
+
+    return plainShift;
+  });
+
+  return {
+    message: 'Shifts fetched successfully',
+    data: {
+      shifts,
+      pagination: {
+        total: count,
+        page,
+        limit,
+        totalPages: Math.ceil(count / limit),
+      },
+    },
+  };
+}
 
   async findOne(id: number, currentUser: CurrentUser) {
     const shift = await this.shiftModel.findByPk(id, {

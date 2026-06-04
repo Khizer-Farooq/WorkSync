@@ -40,7 +40,7 @@ export class Project extends Model<Project, ProjectCreationAttrs> {
   declare description: string | null;
 
   @Column({
-    type: DataType.ENUM('ACTIVE', 'ARCHIVED', 'COMPLETED'),
+    type: DataType.ENUM('ACTIVE', 'ARCHIVED', 'COMPLETED', 'CANCELED'),
     allowNull: false,
     defaultValue: 'ACTIVE',
   })

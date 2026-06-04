@@ -1,6 +1,6 @@
 import type { User } from "./auth";
 
-export type ProjectStatus = "ACTIVE" | "ARCHIVED" | "COMPLETED";
+export type ProjectStatus = "ACTIVE" | "ARCHIVED" | "COMPLETED" | "CANCELED";
 
 export type Project = {
   id: number;

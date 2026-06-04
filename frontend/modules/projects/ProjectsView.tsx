@@ -79,11 +79,19 @@ export default function ProjectsView() {
       },
     });
   }
+   async function handleMarkCanceled(project: Project) {
+    await updateProject({
+      id: project.id,
+      body: {
+        status: "CANCELED",
+      },
+    });
+  }
 
   async function handleArchive(project: Project) {
     const confirmed = window.confirm("Archive this project?");
     if (!confirmed) return;
-
+    
     await archiveProject(project.id);
   }
 
@@ -168,6 +176,10 @@ export default function ProjectsView() {
                 onClick: () => handleMarkCompleted(project),
               },
               {
+                label: "Mark Canceled",
+                onClick: () => handleMarkCanceled(project),
+              },
+              {
                 label: "Archive",
                 onClick: () => handleArchive(project),
               },
@@ -233,6 +245,7 @@ export default function ProjectsView() {
             { label: "ACTIVE", value: "ACTIVE" },
             { label: "COMPLETED", value: "COMPLETED" },
             { label: "ARCHIVED", value: "ARCHIVED" },
+            { label: "CANCELED", value: "CANCELED" },
           ]}
           sortBy={sortBy}
           sortOrder={sortOrder}

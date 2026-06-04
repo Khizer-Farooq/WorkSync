@@ -1,26 +1,33 @@
 import { IsOptional, IsString } from 'class-validator';
 
 export class ShiftQueryDto {
-    @IsOptional()
-    page?: number;
+  @IsOptional()
+  page?: string;
 
-    @IsOptional()
-    limit?: number;
+  @IsOptional()
+  limit?: string;
 
-    @IsOptional()
-    userId?: string;
+  @IsOptional()
+  userId?: string;
 
-    @IsOptional()
-    fromDate?: string;
+  @IsOptional()
+  fromDate?: string;
 
-    @IsOptional()
-    toDate?: string;
+  @IsOptional()
+  toDate?: string;
 
-    @IsString()
-    @IsOptional()
-    sortBy?: string;
+  @IsOptional()
+  status?: 'ACTIVE' | 'COMPLETED';
 
-    @IsString()
-    @IsOptional()
-    sortOrder?: 'ASC' | 'DESC';
+  @IsString()
+  @IsOptional()
+  search?: string;
+
+  @IsString()
+  @IsOptional()
+  sortBy?: string;
+
+  @IsString()
+  @IsOptional()
+  sortOrder?: 'ASC' | 'DESC';
 }

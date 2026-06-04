@@ -1,9 +1,13 @@
 "use client";
-
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useSelector } from "react-redux";
-
+import { StatusBadge } from "@/lib/statusColors";
+import ActionMenu from "@/components/shared/ActionMenu";
+import AppModal from "@/components/shared/modal/AppModal";
+import ProjectEditForm from "./ProjectEditForm";
+import type { Project } from "@/types/project";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import type { RootState } from "@/redux/store";
 import {
@@ -61,7 +65,8 @@ export default function ProjectDetailView() {
           <ArrowLeft size={16} />
           Back to Projects
         </button>
-
+      
+    
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -74,9 +79,9 @@ export default function ProjectDetailView() {
               </p>
             </div>
 
-            <span className="w-fit rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-              {project.status}
-            </span>
+            <div className="w-fit">
+              <StatusBadge status={project.status} />
+            </div>
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -90,13 +90,35 @@ export class TasksService {
     const limit = Number(query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const sortBy = query.sortBy || 'createdAt';
+    const allowedSortFields = ['createdAt', 'updatedAt', 'dueDate', 'title'] as const;
+    type SortField = typeof allowedSortFields[number];
+    const sortBy: SortField = allowedSortFields.includes(
+      query.sortBy as SortField,
+    )
+      ? (query.sortBy as SortField)
+      : 'createdAt';
+
     const sortOrder = query.sortOrder === 'ASC' ? 'ASC' : 'DESC';
 
     const whereCondition: any = {};
 
     if (query.projectId) {
       whereCondition.projectId = Number(query.projectId);
+    }
+
+    if (query.search) {
+      whereCondition[Op.or] = [
+        {
+          title: {
+            [Op.iLike]: `%${query.search}%`,
+          },
+        },
+        {
+          description: {
+            [Op.iLike]: `%${query.search}%`,
+          },
+        },
+      ];
     }
 
     if (query.statusId) {

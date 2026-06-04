@@ -58,16 +58,18 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
       <AppSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <AppHeader onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 lg:p-6">
+          {children}
+        </main>
 
         <AppFooter />
       </div>
