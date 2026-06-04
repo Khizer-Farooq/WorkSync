@@ -114,12 +114,12 @@ export class ShiftsService {
   const offset = (page - 1) * limit;
 
   const allowedSortFields = ['createdAt', 'updatedAt', 'clockIn', 'clockOut'];
+const requestedSortBy = query.sortBy || '';
+const sortBy = allowedSortFields.includes(requestedSortBy)
+  ? requestedSortBy
+  : 'clockIn';
 
-const sortBy = allowedSortFields.includes(query.sortBy || '')
-  ? (query.sortBy as string)
-  : 'createdAt';
-
-const sortOrder = query.sortOrder === 'ASC' ? 'ASC' : 'DESC';
+const sortOrder: 'ASC' | 'DESC' = query.sortOrder === 'ASC' ? 'ASC' : 'DESC';
 
   const whereCondition: any = {};
 
@@ -141,17 +141,20 @@ const sortOrder = query.sortOrder === 'ASC' ? 'ASC' : 'DESC';
     };
   }
 
-  if (query.fromDate && query.toDate) {
-    const from = new Date(query.fromDate);
-    from.setHours(0, 0, 0, 0);
+  if (query.fromDate || query.toDate) {
+  whereCondition.clockIn = {};
 
-    const to = new Date(query.toDate);
-    to.setHours(23, 59, 59, 999);
-
-    whereCondition.clockIn = {
-      [Op.between]: [from, to],
-    };
+  if (query.fromDate) {
+    whereCondition.clockIn[Op.gte] = new Date(query.fromDate);
   }
+
+  if (query.toDate) {
+    const toDate = new Date(query.toDate);
+    toDate.setHours(23, 59, 59, 999);
+
+    whereCondition.clockIn[Op.lte] = toDate;
+  }
+}
 
   const userInclude: any = {
     model: User,

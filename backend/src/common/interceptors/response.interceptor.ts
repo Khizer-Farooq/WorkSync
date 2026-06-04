@@ -11,11 +11,16 @@ export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     return next.handle().pipe(
       map((data) => {
+        const hasDataProperty =
+          data &&
+          typeof data === 'object' &&
+          Object.prototype.hasOwnProperty.call(data, 'data');
+
         return {
           success: true,
           statusCode: 200,
           message: data?.message || 'Request successful',
-          data: data?.data ?? data,
+          data: hasDataProperty ? data.data : data,
         };
       }),
     );
