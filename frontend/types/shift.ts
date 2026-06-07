@@ -26,6 +26,7 @@ export type ShiftListResponse = {
 
 export type WeeklyHoursResponse = {
   weeklyHours: number;
+  weeklySeconds?: number;
 };
 
 export type ClockOutResponse = {
@@ -37,6 +38,7 @@ export type GetShiftsQuery = {
   page?: number;
   limit?: number;
   userId?: number;
+  search?: string;
   fromDate?: string;
   toDate?: string;
   sortBy?: string;

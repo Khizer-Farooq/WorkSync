@@ -281,24 +281,30 @@ if (query.status === 'COMPLETED') {
       where: whereCondition,
     });
 
-    const weeklyHours = shifts.reduce((total, shift) => {
-      return total + this.calculateWorkedHours(shift.clockIn, shift.clockOut as Date);
+    const weeklySeconds = shifts.reduce((total, shift) => {
+      return total + this.calculateWorkedSeconds(shift.clockIn, shift.clockOut as Date);
     }, 0);
+
+    const weeklyHours = Number((weeklySeconds / (60 * 60)).toFixed(2));
 
     return {
       message: 'Weekly worked hours fetched successfully',
       data: {
         weeklyHours,
+        weeklySeconds,
       },
     };
   }
 
-  private calculateWorkedHours(clockIn: Date, clockOut: Date) {
+  private calculateWorkedSeconds(clockIn: Date, clockOut: Date) {
     const start = new Date(clockIn).getTime();
     const end = new Date(clockOut).getTime();
 
-    const diffInMs = end - start;
-    const diffInHours = diffInMs / (1000 * 60 * 60);
+    return Math.max(0, Math.floor((end - start) / 1000));
+  }
+
+  private calculateWorkedHours(clockIn: Date, clockOut: Date) {
+    const diffInHours = this.calculateWorkedSeconds(clockIn, clockOut) / (60 * 60);
 
     return Number(diffInHours.toFixed(2));
   }

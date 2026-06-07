@@ -2,12 +2,14 @@
 
 import { Clock } from "lucide-react";
 
+import { formatSecondsDuration } from "./shift.utils";
+
 type Props = {
-  weeklyHours: number;
+  weeklySeconds: number;
   isAdmin: boolean;
 };
 
-export default function WeeklyHoursCard({ weeklyHours, isAdmin }: Props) {
+export default function WeeklyHoursCard({ weeklySeconds, isAdmin }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
@@ -17,7 +19,7 @@ export default function WeeklyHoursCard({ weeklyHours, isAdmin }: Props) {
           </p>
 
           <h2 className="mt-2 text-2xl font-bold text-gray-900">
-            {weeklyHours}h
+            {formatSecondsDuration(weeklySeconds)}
           </h2>
 
           <p className="mt-1 text-xs text-gray-500">

@@ -10,6 +10,7 @@ import LoadingState from "@/components/shared/LoadingState";
 import ErrorState from "@/components/shared/ErrorState";
 import EmptyState from "@/components/shared/EmptyState";
 import SelectFilter from "@/components/shared/SelectFilter";
+import SearchInput from "@/components/shared/SearchInput";
 
 import type { RootState } from "@/redux/store";
 import type { Shift } from "@/types/shift";
@@ -41,6 +42,7 @@ export default function ShiftsView() {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [search, setSearch] = useState("");
 
   const [sortBy, setSortBy] = useState("clockIn");
   const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
@@ -69,6 +71,7 @@ export default function ShiftsView() {
   } = useGetShiftsQuery({
     page,
     limit,
+    search: isAdmin ? search.trim() || undefined : undefined,
     fromDate: fromDate || undefined,
     toDate: toDate || undefined,
     sortBy,
@@ -79,7 +82,9 @@ export default function ShiftsView() {
   const [clockOut, { isLoading: isClockingOut }] = useClockOutMutation();
 
   const activeShift = activeShiftResponse?.data || null;
-  const weeklyHours = weeklyHoursResponse?.data.weeklyHours || 0;
+  const weeklySeconds =
+    weeklyHoursResponse?.data.weeklySeconds ??
+    Math.round((weeklyHoursResponse?.data.weeklyHours || 0) * 3600);
 
   const shifts = shiftsResponse?.data.shifts || [];
   const pagination = shiftsResponse?.data.pagination;
@@ -163,7 +168,7 @@ export default function ShiftsView() {
               onRetry={() => refetchWeeklyHours()}
             />
           ) : (
-            <WeeklyHoursCard weeklyHours={weeklyHours} isAdmin={isAdmin} />
+            <WeeklyHoursCard weeklySeconds={weeklySeconds} isAdmin={isAdmin} />
           )}
 
           {activeLoading ? (
@@ -186,7 +191,30 @@ export default function ShiftsView() {
         </div>
 
         <div className="rounded-2xl border bg-white p-4 shadow-sm">
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+          <div
+            className={`grid grid-cols-1 gap-3 ${
+              isAdmin ? "lg:grid-cols-6" : "lg:grid-cols-4"
+            }`}
+          >
+            {isAdmin && (
+              <div className="lg:col-span-2">
+                <label className="text-xs font-medium text-gray-500">
+                  Employee
+                </label>
+
+                <div className="mt-1">
+                  <SearchInput
+                    value={search}
+                    onChange={(value) => {
+                      setSearch(value);
+                      resetPage();
+                    }}
+                    placeholder="Search name or email"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="text-xs font-medium text-gray-500">
                 From Date
