@@ -1,5 +1,5 @@
-import RegisterEmployeeForm from "@/modules/auth/RegisterEmployeeForm";
+import { redirect } from "next/navigation";
 
 export default function RegisterPage() {
-  return <RegisterEmployeeForm />;
+  redirect("/users");
 }

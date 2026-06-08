@@ -28,7 +28,6 @@ export default function TaskEditForm({ task, onSuccess }: Props) {
 
   useEffect(() => {
     reset({
-      projectId: String(task.projectId),
       title: task.title,
       description: task.description || "",
       dueDate: task.dueDate || "",

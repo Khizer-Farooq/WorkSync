@@ -11,22 +11,28 @@ import type { User } from "@/types/auth";
 type Props = {
   selectedUsers: User[];
   onChange: (users: User[]) => void;
+  users?: User[];
   excludedUserIds?: number[];
+  emptyMessage?: string;
   title?: string;
 };
 
 export default function UserSearchSelect({
   selectedUsers,
   onChange,
+  users,
   excludedUserIds = [],
+  emptyMessage = "No employee found.",
   title = "Add Users",
 }: Props) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data, isLoading, isError } = useGetEmployeesQuery();
+  const { data, isLoading, isError } = useGetEmployeesQuery(undefined, {
+    skip: Boolean(users),
+  });
 
-  const employees = data?.data || [];
+  const employees = useMemo(() => users ?? data?.data ?? [], [data?.data, users]);
 
   const filteredUsers = useMemo(() => {
     const text = debouncedSearch.trim().toLowerCase();
@@ -86,7 +92,7 @@ export default function UserSearchSelect({
         )}
 
         {!isLoading && !isError && filteredUsers.length === 0 && (
-          <p className="text-sm text-gray-500">No employee found.</p>
+          <p className="text-sm text-gray-500">{emptyMessage}</p>
         )}
 
         {!isLoading && !isError && filteredUsers.length > 0 && (

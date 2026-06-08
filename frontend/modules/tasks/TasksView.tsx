@@ -27,6 +27,7 @@ import {
     useGetTaskStatusesQuery,
     useUpdateTaskMutation,
 } from "@/redux/services/taskApi";
+import { useGetProjectByIdQuery } from "@/redux/services/projectApi";
 
 import TaskCreateForm from "./TaskCreateForm";
 import TaskEditForm from "./TaskEditForm";
@@ -61,6 +62,13 @@ export default function TasksView() {
     });
 
     const { data: statusesResponse } = useGetTaskStatusesQuery();
+    const {
+        data: assignProjectResponse,
+        isLoading: isLoadingAssignProject,
+        isError: isAssignProjectError,
+    } = useGetProjectByIdQuery(assignTask?.projectId || 0, {
+        skip: !assignTask,
+    });
 
     const [updateTask] = useUpdateTaskMutation();
     const [assignUsers, { isLoading: assigningUsers }] =
@@ -69,6 +77,7 @@ export default function TasksView() {
     const tasks = data?.data.tasks || [];
     const pagination = data?.data.pagination;
     const statuses = statusesResponse?.data || [];
+    const assignProjectMembers = assignProjectResponse?.data.members || [];
 
     function resetPage() {
         setPage(1);
@@ -304,19 +313,40 @@ export default function TasksView() {
             >
                 {assignTask && (
                     <div className="space-y-5">
-                        <UserSearchSelect
-                            title="Assign Users"
-                            selectedUsers={selectedAssignUsers}
-                            onChange={setSelectedAssignUsers}
-                            excludedUserIds={
-                                assignTask.assignedUsers?.map((user) => user.id) || []
-                            }
-                        />
+                        {isLoadingAssignProject && (
+                            <p className="text-sm text-gray-500">
+                                Loading project members...
+                            </p>
+                        )}
+
+                        {isAssignProjectError && (
+                            <p className="text-sm text-red-600">
+                                Failed to load project members.
+                            </p>
+                        )}
+
+                        {!isLoadingAssignProject && !isAssignProjectError && (
+                            <UserSearchSelect
+                                title="Assign Project Members"
+                                selectedUsers={selectedAssignUsers}
+                                onChange={setSelectedAssignUsers}
+                                users={assignProjectMembers}
+                                emptyMessage="No project member found."
+                                excludedUserIds={
+                                    assignTask.assignedUsers?.map((user) => user.id) || []
+                                }
+                            />
+                        )}
 
                         <div className="flex justify-end">
                             <button
                                 type="button"
-                                disabled={assigningUsers || selectedAssignUsers.length === 0}
+                                disabled={
+                                    assigningUsers ||
+                                    isLoadingAssignProject ||
+                                    isAssignProjectError ||
+                                    selectedAssignUsers.length === 0
+                                }
                                 onClick={handleAssignUsers}
                                 className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white disabled:opacity-60"
                             >

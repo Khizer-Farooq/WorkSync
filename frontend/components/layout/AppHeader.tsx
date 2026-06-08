@@ -5,16 +5,19 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/features/authSlice";
 import type { RootState } from "@/redux/store";
+import type { User } from "@/types/auth";
 
 type Props = {
+  initialUser?: User | null;
   onMenuClick: () => void;
 };
 
-export default function AppHeader({ onMenuClick }: Props) {
+export default function AppHeader({ initialUser = null, onMenuClick }: Props) {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const reduxUser = useSelector((state: RootState) => state.auth.user);
+  const user = reduxUser || initialUser;
 
   function handleLogout() {
     dispatch(logout());

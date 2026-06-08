@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post,UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { DepartmentsService } from './departments.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -6,9 +6,8 @@ import { UserRole } from 'src/common/enums/user-role.enum';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
-
 @Controller('departments')
-@UseGuards(RolesGuard,JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class DepartmentsController {
   constructor(private readonly departmentsService: DepartmentsService) {}

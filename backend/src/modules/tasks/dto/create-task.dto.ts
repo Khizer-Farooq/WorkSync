@@ -26,6 +26,7 @@ export class CreateTaskDto {
   dueDate?: string;
 
   @IsArray()
+  @IsInt({ each: true })
   @IsOptional()
   assignedUserIds?: number[];
 }

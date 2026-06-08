@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException, } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { Task } from './entities/task.model';
@@ -14,7 +19,6 @@ import { TaskQueryDto } from './dto/task-query.dto';
 import { CurrentUser } from '../../common/types/current-user.type';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { ActivityService } from '../dashboard/activity.service';
-
 
 @Injectable()
 export class TasksService {
@@ -38,7 +42,7 @@ export class TasksService {
     private userModel: typeof User,
 
     private readonly activityService: ActivityService,
-  ) { }
+  ) {}
 
   async create(dto: CreateTaskDto, currentUser: CurrentUser) {
     const project = await this.projectModel.findByPk(dto.projectId);
@@ -55,6 +59,10 @@ export class TasksService {
       throw new BadRequestException('Default TODO status not found');
     }
 
+    if (dto.assignedUserIds && dto.assignedUserIds.length > 0) {
+      await this.validateAssignableUsers(dto.projectId, dto.assignedUserIds);
+    }
+
     const task = await this.taskModel.create({
       projectId: dto.projectId,
       statusId: todoStatus.id,
@@ -65,7 +73,11 @@ export class TasksService {
     });
 
     if (dto.assignedUserIds && dto.assignedUserIds.length > 0) {
-      await this.assignUsersToTask(task.id, dto.assignedUserIds, currentUser.id);
+      await this.createTaskAssignments(
+        task.id,
+        dto.assignedUserIds,
+        currentUser.id,
+      );
     }
 
     await this.activityService.createActivity({
@@ -90,8 +102,13 @@ export class TasksService {
     const limit = Number(query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const allowedSortFields = ['createdAt', 'updatedAt', 'dueDate', 'title'] as const;
-    type SortField = typeof allowedSortFields[number];
+    const allowedSortFields = [
+      'createdAt',
+      'updatedAt',
+      'dueDate',
+      'title',
+    ] as const;
+    type SortField = (typeof allowedSortFields)[number];
     const sortBy: SortField = allowedSortFields.includes(
       query.sortBy as SortField,
     )
@@ -291,7 +308,8 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    await this.assignUsersToTask(id, dto.userIds, currentUser.id);
+    await this.validateAssignableUsers(task.projectId, dto.userIds);
+    await this.createTaskAssignments(id, dto.userIds, currentUser.id);
     await this.activityService.createActivity({
       userId: currentUser.id,
       action: 'TASK_ASSIGNED',
@@ -318,11 +336,7 @@ export class TasksService {
     };
   }
 
-  private async assignUsersToTask(
-    taskId: number,
-    userIds: number[],
-    assignedBy: number,
-  ) {
+  private async validateAssignableUsers(projectId: number, userIds: number[]) {
     const users = await this.userModel.findAll({
       where: {
         id: {
@@ -336,6 +350,27 @@ export class TasksService {
       throw new BadRequestException('One or more assigned users are invalid');
     }
 
+    if (
+      (await this.projectMemberModel.count({
+        where: {
+          projectId,
+          userId: {
+            [Op.in]: userIds,
+          },
+        },
+      })) !== userIds.length
+    ) {
+      throw new BadRequestException(
+        'One or more assigned users are not members of this project',
+      );
+    }
+  }
+
+  private async createTaskAssignments(
+    taskId: number,
+    userIds: number[],
+    assignedBy: number,
+  ) {
     const records = userIds.map((userId) => ({
       taskId,
       userId,

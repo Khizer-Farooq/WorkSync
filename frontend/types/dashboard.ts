@@ -4,7 +4,7 @@ export type Activity = {
   action: string;
   entityType: string;
   entityId: number | null;
-  metadata?: any;
+  metadata?: Record<string, unknown> | null;
   createdAt: string;
   user?: {
     id: number;

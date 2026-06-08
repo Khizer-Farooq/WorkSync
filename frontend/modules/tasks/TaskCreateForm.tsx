@@ -64,6 +64,13 @@ export default function TaskCreateForm({ onSuccess }: Props) {
     }
   }
 
+  function handleProjectChange(project: Project | null) {
+    setSelectedProject(project);
+    setSelectedUsers([]);
+  }
+
+  const projectMembers = selectedProject?.members || [];
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {errors.root?.message && (
@@ -74,7 +81,7 @@ export default function TaskCreateForm({ onSuccess }: Props) {
 
       <ProjectSearchSelect
         selectedProject={selectedProject}
-        onChange={setSelectedProject}
+        onChange={handleProjectChange}
         title="Select Project"
       />
 
@@ -114,9 +121,13 @@ export default function TaskCreateForm({ onSuccess }: Props) {
       </div>
 
       <UserSearchSelect
-        title="Assign Users"
+        title="Assign Project Members"
         selectedUsers={selectedUsers}
         onChange={setSelectedUsers}
+        users={selectedProject ? projectMembers : []}
+        emptyMessage={
+          selectedProject ? "No project member found." : "Select a project first."
+        }
       />
 
       <div className="flex justify-end">

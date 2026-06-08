@@ -3,15 +3,35 @@
 import {CheckCircle,FolderKanban,Clock,ActivityIcon,} from "lucide-react";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { formatHoursToHms } from "@/lib/time";
 import { useGetDashboardQuery } from "@/redux/services/dashboardApi";
+import type { User } from "@/types/auth";
+import type { DashboardData } from "@/types/dashboard";
 import StatCard from "./StatCard";
 import RecentActivityList from "./RecentActivity";
-export default function DashboardView() {
-  const { data, isLoading, isError, refetch } = useGetDashboardQuery();
 
-  if (isLoading) {
+type Props = {
+  dashboardError?: string | null;
+  hasServerToken?: boolean;
+  initialDashboard?: DashboardData | null;
+  initialUser?: User | null;
+};
+
+export default function DashboardView({
+  dashboardError,
+  hasServerToken = false,
+  initialDashboard = null,
+  initialUser = null,
+}: Props) {
+  const { data, isLoading, isError, refetch } = useGetDashboardQuery(undefined, {
+    skip: Boolean(initialDashboard),
+  });
+
+  const dashboard = data?.data || initialDashboard;
+
+  if (isLoading && !dashboard) {
     return (
-      <DashboardLayout>
+      <DashboardLayout hasServerToken={hasServerToken} initialUser={initialUser}>
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <p className="text-sm text-gray-500">Loading dashboard...</p>
         </div>
@@ -19,13 +39,17 @@ export default function DashboardView() {
     );
   }
 
-  if (isError || !data?.data) {
+  if (isError || !dashboard) {
     return (
-      <DashboardLayout>
+      <DashboardLayout hasServerToken={hasServerToken} initialUser={initialUser}>
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <h1 className="text-xl font-semibold text-gray-900">
             Failed to load dashboard
           </h1>
+
+          {dashboardError && (
+            <p className="mt-2 text-sm text-gray-500">{dashboardError}</p>
+          )}
 
           <button
             onClick={() => refetch()}
@@ -38,10 +62,8 @@ export default function DashboardView() {
     );
   }
 
-  const dashboard = data.data;
-
   return (
-    <DashboardLayout>
+    <DashboardLayout hasServerToken={hasServerToken} initialUser={initialUser}>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -65,7 +87,7 @@ export default function DashboardView() {
 
           <StatCard
             title="Weekly Hours"
-            value={`${dashboard.weeklyWorkedHours}h`}
+            value={formatHoursToHms(dashboard.weeklyWorkedHours)}
             icon={Clock}
           />
 

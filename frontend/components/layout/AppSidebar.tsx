@@ -1,18 +1,25 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {LayoutDashboard,FolderKanban,CheckSquare,Clock,UserPlus,} from "lucide-react";
+import {LayoutDashboard,FolderKanban,CheckSquare,Clock,Users} from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
+import type { User } from "@/types/auth";
 
 type Props = {
+  initialUser?: User | null;
   isOpen: boolean;
   onClose: () => void;
 };
 
-export default function AppSidebar({ isOpen, onClose }: Props) {
+export default function AppSidebar({
+  initialUser = null,
+  isOpen,
+  onClose,
+}: Props) {
   const pathname = usePathname();
-  const user = useSelector((state: RootState) => state.auth.user);
+  const reduxUser = useSelector((state: RootState) => state.auth.user);
+  const user = reduxUser || initialUser;
 
   const menuItems = [
     {
@@ -39,10 +46,11 @@ export default function AppSidebar({ isOpen, onClose }: Props) {
       icon: Clock,
       roles: ["ADMIN", "EMPLOYEE"],
     },
+    
     {
-      label: "Register Employee",
-      href: "/register",
-      icon: UserPlus,
+      label: "Users",
+      href: "/users",
+      icon: Users,
       roles: ["ADMIN"],
     },
   ];
@@ -74,7 +82,8 @@ export default function AppSidebar({ isOpen, onClose }: Props) {
         <nav className="space-y-2 p-4">
           {allowedMenuItems.map((item) => {
             const Icon = item.icon;
-            const active = pathname === item.href;
+            const active =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link
