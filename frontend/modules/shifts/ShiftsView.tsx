@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSelector } from "react-redux";
-
+import ActionMenu from "@/components/shared/ActionMenu";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import DataPagination from "@/components/shared/DataPagination";
 import DataTable, { DataColumn } from "@/components/shared/DataTable";
@@ -11,7 +11,7 @@ import ErrorState from "@/components/shared/ErrorState";
 import EmptyState from "@/components/shared/EmptyState";
 import SelectFilter from "@/components/shared/SelectFilter";
 import SearchInput from "@/components/shared/SearchInput";
-
+import { useDeleteShiftMutation } from "@/redux/services/shiftApi";
 import type { RootState } from "@/redux/store";
 import type { Shift } from "@/types/shift";
 
@@ -46,7 +46,7 @@ export default function ShiftsView() {
 
   const [sortBy, setSortBy] = useState("clockIn");
   const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
-
+  const [deleteShift]= useDeleteShiftMutation();
   const {
     data: activeShiftResponse,
     isLoading: activeLoading,
@@ -115,6 +115,20 @@ export default function ShiftsView() {
     }
   }
 
+    async function handleDeleteShift(shift: Shift) {
+  const confirmed = window.confirm("Delete this shift?");
+  if (!confirmed) return;
+
+  try {
+    await deleteShift(shift.id).unwrap();
+    refetchShifts();
+    refetchWeeklyHours();
+    refetchActiveShift();
+  } catch {
+    alert("Delete shift failed");
+  }
+}
+
   const columns: DataColumn<Shift>[] = [
     {
       header: "Employee",
@@ -144,9 +158,29 @@ export default function ShiftsView() {
         </span>
       ),
     },
+    ...(isAdmin
+  ? [
+      {
+        header: "Actions",
+        className: "text-right",
+        render: (shift: Shift) => (
+          <ActionMenu
+            items={[
+              {
+                label: "Delete",
+                danger: true,
+                onClick: () => handleDeleteShift(shift),
+              },
+            ]}
+          />
+        ),
+      },
+    ]
+  : []),
   ];
 
   return (
+    
     <DashboardLayout>
       <div className="space-y-6">
         <div>

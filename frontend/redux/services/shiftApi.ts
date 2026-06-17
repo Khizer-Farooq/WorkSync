@@ -49,6 +49,14 @@ export const shiftApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Shifts", "Dashboard"],
     }),
+
+      deleteShift:builder.mutation<ApiResponse<null>,number>({
+        query:(id)=>({
+          url:`/shifts/${id}`,
+          method:"DELETE",
+        }),
+        invalidatesTags:["Shifts","Dashboard"],
+      })
   }),
 });
 
@@ -59,4 +67,5 @@ export const {
   useGetShiftByIdQuery,
   useClockInMutation,
   useClockOutMutation,
+  useDeleteShiftMutation,
 } = shiftApi;

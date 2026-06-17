@@ -9,7 +9,6 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { TaskCommentsModule } from './modules/task-comments/task-comments.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
-import { Dashboard } from './modules/dashboard/entities/dashboard.model';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,7 +34,6 @@ import { Dashboard } from './modules/dashboard/entities/dashboard.model';
     TasksModule,
     TaskCommentsModule,
     ShiftsModule,
-    Dashboard,
   ],
 })
 export class AppModule implements NestModule {

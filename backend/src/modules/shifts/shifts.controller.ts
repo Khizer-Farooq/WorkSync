@@ -1,4 +1,4 @@
-import {Controller,Get,Param,Post,Query,UseGuards,} from '@nestjs/common';
+import {Controller,Get,Param,Post,Query,UseGuards,Delete} from '@nestjs/common';
 import { ShiftsService } from './shifts.service';
 import { ShiftQueryDto } from './dto/shift-query.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -72,4 +72,16 @@ export class ShiftsController {
    currentUser,
   );
  }
+ 
+ @Delete(':id')
+ @UseGuards(RolesGuard)
+ @Roles(UserRole.ADMIN)
+ remove(
+    @Param('id') id: string,
+    @GetCurrentUser() currentUser: CurrentUser,
+  ) {
+    return this.shiftsService.remove(Number(id), currentUser);
+ 
+
+}
 }
