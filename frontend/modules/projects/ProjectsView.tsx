@@ -1,5 +1,5 @@
 "use client";
-
+import { StatusBadge } from "@/lib/statusColors";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -135,9 +135,7 @@ export default function ProjectsView() {
     {
       header: "Status",
       render: (project) => (
-        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-          {project.status}
-        </span>
+        <StatusBadge status={project.status} />
       ),
     },
     {

@@ -61,10 +61,27 @@ export const getStatusColor = (value: string): StatusColor => {
   if (statusLower === "pending" || statusLower === "planned") {
     return { bg: "bg-amber-50", text: "text-amber-700" };
   }
+  if (statusLower === "active") {
+  return { bg: "bg-blue-50", text: "text-blue-700" };
+}
+
+if (statusLower === "completed") {
+  return { bg: "bg-green-50", text: "text-green-700" };
+}
+
+if (statusLower === "archived") {
+  return { bg: "bg-slate-100", text: "text-slate-700" };
+}
+
+if (statusLower === "canceled" || statusLower === "cancelled") {
+  return { bg: "bg-red-50", text: "text-red-700" };
+}
 
   // Default fallback
   return { bg: "bg-slate-100", text: "text-slate-700" };
 };
+
+
 
 export const StatusBadge = ({ status }: { status: string }) => {
   const { bg, text } = getStatusColor(status);

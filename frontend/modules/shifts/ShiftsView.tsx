@@ -1,5 +1,5 @@
 "use client";
-
+import { StatusBadge } from "@/lib/statusColors";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import ActionMenu from "@/components/shared/ActionMenu";
@@ -153,9 +153,7 @@ export default function ShiftsView() {
     {
       header: "Status",
       render: (shift) => (
-        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-          {getShiftStatus(shift.clockOut)}
-        </span>
+        <StatusBadge status={getShiftStatus(shift.clockOut)} />
       ),
     },
     ...(isAdmin
