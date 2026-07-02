@@ -7,16 +7,16 @@ import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
 import { User } from './entities/user.model';
-import { Department } from 'src/modules/departments/entities/department.model';
+import { Department } from '../departments/entities/department.model';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserQueryDto } from './dto/user-query.dto';
 import { UserRole } from '../../common/enums/user-role.enum';
-import { Project } from 'src/modules/projects/entities/project.model';
-import { ProjectMember } from 'src/modules/projects/entities/project-member.model';
-import { Task } from 'src/modules/tasks/entities/task.model';
-import { TaskAssignment } from 'src/modules/tasks/entities/task-assignment.model';
-import { Shift } from 'src/modules/shifts/entities/shift.model';
+import { Project } from '../projects/entities/project.model';
+import { ProjectMember } from '../projects/entities/project-member.model';
+import { Task } from '../tasks/entities/task.model';
+import { TaskAssignment } from '../tasks/entities/task-assignment.model';
+import { Shift } from '../shifts/entities/shift.model';
 
 type CreateUserPayload = {
   name: string;

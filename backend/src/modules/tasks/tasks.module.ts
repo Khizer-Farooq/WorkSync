@@ -5,9 +5,9 @@ import { TasksController } from './tasks.controller';
 import { Task } from './entities/task.model';
 import { TaskStatus } from './entities/task-status.model';
 import { TaskAssignment } from './entities/task-assignment.model';
-import { Project } from 'src/modules/projects/entities/project.model';
-import { ProjectMember } from 'src/modules/projects/entities/project-member.model';
-import { User } from 'src/modules/users/entities/user.model';
+import { Project } from '../projects/entities/project.model';
+import { ProjectMember } from '../projects/entities/project-member.model';
+import { User } from '../users/entities/user.model';
 import { DashboardModule } from '../dashboard/dashboard.module';
 
 @Module({

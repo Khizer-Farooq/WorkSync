@@ -1,9 +1,9 @@
 import {ForbiddenException,Injectable,NotFoundException,} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { TaskComment } from './entities/task-comment.model';
-import { Task } from 'src/modules/tasks/entities/task.model';
-import { TaskAssignment } from 'src/modules/tasks/entities/task-assignment.model';
-import { User } from 'src/modules/users/entities/user.model';
+import { Task } from '../tasks/entities/task.model';
+import { TaskAssignment } from '../tasks/entities/task-assignment.model';
+import { User } from '../users/entities/user.model';
 import { CreateTaskCommentDto } from './dto/create-task-comment.dto';
 import type { CurrentUser } from '../../common/types/current-user.type';
 import { UserRole } from '../../common/enums/user-role.enum';

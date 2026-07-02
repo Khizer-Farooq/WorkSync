@@ -1,6 +1,6 @@
 import {Table,Column,Model,DataType,ForeignKey,BelongsTo,BelongsToMany,} from 'sequelize-typescript';
-import { ProjectStatus } from 'src/common/enums/project-status.enum';
-import { User } from 'src/modules/users/entities/user.model';
+import { ProjectStatus } from '../../../common/enums/project-status.enum';
+import { User } from '../../users/entities/user.model';
 import { ProjectMember } from './project-member.model';
 
 interface ProjectCreationAttrs {

@@ -8,8 +8,8 @@ import {
   BelongsToMany,
   HasMany,
 } from 'sequelize-typescript';
-import { Project } from 'src/modules/projects/entities/project.model';
-import { User } from 'src/modules/users/entities/user.model';
+import { Project } from '../../projects/entities/project.model';
+import { User } from '../../users/entities/user.model';
 import { TaskStatus } from './task-status.model';
 import { TaskAssignment } from './task-assignment.model';
 import { TaskComment } from '../../task-comments/entities/task-comment.model';

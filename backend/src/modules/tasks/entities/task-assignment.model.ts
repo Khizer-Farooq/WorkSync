@@ -7,7 +7,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { Task } from './task.model';
-import { User } from 'src/modules/users/entities/user.model';
+import { User } from '../../users/entities/user.model';
 
 interface TaskAssignmentCreationAttrs {
   taskId: number;

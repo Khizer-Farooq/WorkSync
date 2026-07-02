@@ -1,12 +1,12 @@
 import {Table,Column,Model,DataType,ForeignKey,BelongsTo,BelongsToMany,HasMany,} from 'sequelize-typescript';
-import { Department } from 'src/modules/departments/entities/department.model';
-import { UserRole } from 'src/common/enums/user-role.enum';
-import { ProjectMember } from 'src/modules/projects/entities/project-member.model';
-import { Project } from 'src/modules/projects/entities/project.model';
-import { Task } from 'src/modules/tasks/entities/task.model';
-import { TaskAssignment } from 'src/modules/tasks/entities/task-assignment.model';
-import { TaskComment } from 'src/modules/task-comments/entities/task-comment.model';
-import { Shift } from 'src/modules/shifts/entities/shift.model';
+import { Department } from '../../departments/entities/department.model';
+import { UserRole } from '../../../common/enums/user-role.enum';
+import { ProjectMember } from '../../projects/entities/project-member.model';
+import { Project } from '../../projects/entities/project.model';
+import { Task } from '../../tasks/entities/task.model';
+import { TaskAssignment } from '../../tasks/entities/task-assignment.model';
+import { TaskComment } from '../../task-comments/entities/task-comment.model';
+import { Shift } from '../../shifts/entities/shift.model';
 
 export interface UserCreationAttrs {
   name: string;

@@ -10,7 +10,7 @@ import { UserRole } from '../../common/enums/user-role.enum';
 import { ProjectStatus } from '../../common/enums/project-status.enum';
 import { Project } from './entities/project.model';
 import { ProjectMember } from './entities/project-member.model';
-import { User } from 'src/modules/users/entities/user.model';
+import { User } from '../users/entities/user.model';
 import { ActivityService } from '../dashboard/activity.service';
 
 

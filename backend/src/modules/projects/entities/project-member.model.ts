@@ -1,6 +1,6 @@
 import {Table,Column,Model,DataType,ForeignKey,BelongsTo,} from 'sequelize-typescript';
 import { Project } from './project.model';
-import { User } from 'src/modules/users/entities/user.model';
+import { User } from '../../users/entities/user.model';
 
 interface ProjectMemberCreationAttrs {
   projectId: number;
