@@ -1,4 +1,5 @@
-import {IsArray,IsDateString,IsNotEmpty,IsOptional,IsString,MaxLength,} from 'class-validator';
+import {IsArray,IsDateString,IsEnum,IsNotEmpty,IsOptional,IsString,MaxLength,} from 'class-validator';
+import { ProjectStatus } from 'src/common/enums/project-status.enum';
 
 export class CreateProjectDto {
   @IsString()
@@ -13,6 +14,10 @@ export class CreateProjectDto {
   @IsDateString()
   @IsOptional()
   deadline?: string;
+
+  @IsEnum(ProjectStatus)
+  @IsOptional()
+  status!: ProjectStatus;
 
   @IsArray()
   @IsOptional()

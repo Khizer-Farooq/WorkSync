@@ -1,0 +1,289 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+import { useCreateShiftMutation } from "@/redux/services/shiftApi";
+import { useGetEmployeesQuery } from "@/redux/services/userApi";
+import SearchInput from "@/components/shared/SearchInput";
+
+const shiftCreateSchema = z.object({
+  userId: z.string().min(1, "Employee is required"),
+  date: z.string().min(1, "Date is required"),
+  clockIn: z.string().min(1, "Clock in time is required"),
+  clockOut: z.string().min(1, "Clock out time is required"),
+});
+
+type ShiftCreateFormValues = z.infer<typeof shiftCreateSchema>;
+
+type Props = {
+  onCancel: () => void;
+  onSuccess: () => void;
+};
+
+type ApiError = {
+  data?: {
+    message?: string;
+  };
+};
+
+function getTodayDateValue() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function buildLocalDateTime(date: string, time: string) {
+  return new Date(`${date}T${time}:00`);
+}
+
+export default function ShiftCreateForm({ onCancel, onSuccess }: Props) {
+  const [searchInput, setSearchInput] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchInputRef = useRef<HTMLDivElement>(null);
+
+  const {
+    data: employeesResponse,
+    isError: employeesError,
+    isFetching: fetchingEmployees,
+    isLoading: loadingEmployees,
+    refetch: refetchEmployees,
+  } = useGetEmployeesQuery();
+  const [createShift, { isLoading }] = useCreateShiftMutation();
+
+  const employees = employeesResponse?.data || [];
+  const employeeSelectDisabled =
+    loadingEmployees || employeesError || employees.length === 0;
+
+  const filteredEmployees = employees.filter((employee) => {
+    const searchLower = searchInput.toLowerCase();
+    return (
+      employee.name.toLowerCase().includes(searchLower) ||
+      employee.email.toLowerCase().includes(searchLower)
+    );
+  });
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    watch,
+    formState: { errors },
+  } = useForm<ShiftCreateFormValues>({
+    resolver: zodResolver(shiftCreateSchema),
+    defaultValues: {
+      userId: "",
+      date: getTodayDateValue(),
+      clockIn: "09:00",
+      clockOut: "17:00",
+    },
+  });
+
+  const userIdValue = watch("userId");
+
+  async function onSubmit(values: ShiftCreateFormValues) {
+    const clockIn = buildLocalDateTime(values.date, values.clockIn);
+    const clockOut = buildLocalDateTime(values.date, values.clockOut);
+
+    if (Number.isNaN(clockIn.getTime()) || Number.isNaN(clockOut.getTime())) {
+      setError("root", {
+        message: "Enter a valid shift date and time.",
+      });
+      return;
+    }
+
+    if (clockOut <= clockIn) {
+      setError("clockOut", {
+        message: "Clock out must be after clock in.",
+      });
+      return;
+    }
+
+    try {
+      await createShift({
+        userId: Number(values.userId),
+        clockIn: clockIn.toISOString(),
+        clockOut: clockOut.toISOString(),
+        shiftType: "REGULAR",
+      }).unwrap();
+
+      reset();
+      setSearchInput("");
+      onSuccess();
+    } catch (error) {
+      const apiError = error as ApiError;
+
+      setError("root", {
+        message: apiError.data?.message || "Shift creation failed",
+      });
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {errors.root?.message && (
+        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          {errors.root.message}
+
+        </div>
+         
+      )}
+
+      <div>
+        <label className="text-sm font-medium text-gray-700">Employee</label>
+        <div className="relative mt-1" ref={searchInputRef}>
+          <Controller
+            name="userId"
+            control={control}
+            render={({ field }) => (
+              <>
+                <SearchInput
+                  placeholder="Search by name or email..."
+                  value={searchInput}
+                  onChange={(value) => {
+                    setSearchInput(value);
+                    setShowDropdown(true);
+                  }}
+                />
+
+                {showDropdown && !employeeSelectDisabled && (
+                  <div className="absolute top-full z-10 mt-1 w-full rounded-lg border bg-white shadow-lg">
+                    {loadingEmployees ? (
+                      <div className="px-3 py-2 text-sm text-gray-500">
+                        Loading employees...
+                      </div>
+                    ) : filteredEmployees.length === 0 ? (
+                      <div className="px-3 py-2 text-sm text-gray-500">
+                        {searchInput ? "No employees found" : "Type to search"}
+                      </div>
+                    ) : (
+                      <ul className="max-h-60 overflow-y-auto">
+                        {filteredEmployees.map((employee) => (
+                          <li key={employee.id}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                field.onChange(employee.id.toString());
+                                setSearchInput(employee.name);
+                                setShowDropdown(false);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 ${
+                                userIdValue === employee.id.toString()
+                                  ? "bg-gray-100 font-medium"
+                                  : ""
+                              }`}
+                            >
+                              <div className="font-medium">{employee.name}</div>
+                              <div className="text-xs text-gray-500">
+                                {employee.email}
+                              </div>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          />
+        </div>
+        {errors.userId && (
+          <p className="mt-1 text-sm text-red-600">{errors.userId.message}</p>
+        )}
+        {employeesError && (
+          <button
+            type="button"
+            onClick={() => refetchEmployees()}
+            className="mt-1 text-sm font-medium text-gray-900 hover:underline"
+          >
+            Retry employees
+          </button>
+        )}
+        {!employeesError && fetchingEmployees && !loadingEmployees && (
+          <p className="mt-1 text-xs text-gray-500">Refreshing employees...</p>
+        )}
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-gray-700">Date</label>
+        <input
+          {...register("date")}
+          type="date"
+          className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900"
+        />
+        {errors.date && (
+          <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label className="text-sm font-medium text-gray-700">Clock In</label>
+          <input
+            {...register("clockIn")}
+            type="time"
+            className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900"
+          />
+          {errors.clockIn && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.clockIn.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-gray-700">Clock Out</label>
+          <input
+            {...register("clockOut")}
+            type="time"
+            className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900"
+          />
+          {errors.clockOut && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.clockOut.message}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3 pt-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={isLoading}
+          className="rounded-lg border px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+        >
+          Cancel
+        </button>
+
+        <button
+          disabled={isLoading || employeeSelectDisabled}
+          className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white disabled:opacity-60"
+        >
+          {isLoading ? "Creating..." : "Create Shift"}
+        </button>
+      </div>
+    </form>
+  );
+}

@@ -59,8 +59,13 @@ export class TasksService {
       throw new BadRequestException('Default TODO status not found');
     }
 
+    let assignedUsers: User[] = [];
+
     if (dto.assignedUserIds && dto.assignedUserIds.length > 0) {
-      await this.validateAssignableUsers(dto.projectId, dto.assignedUserIds);
+      assignedUsers = await this.validateAssignableUsers(
+        dto.projectId,
+        dto.assignedUserIds,
+      );
     }
 
     const task = await this.taskModel.create({
@@ -87,7 +92,12 @@ export class TasksService {
       entityId: task.id,
       metadata: {
         title: task.title,
-        projectId: task.projectId,
+        projectTitle: project.title,
+        taskStatus: todoStatus.name,
+        dueDate: task.dueDate,
+        ...(assignedUsers.length > 0
+          ? { assignedUserNames: assignedUsers.map((user) => user.name) }
+          : {}),
       },
     });
 
@@ -275,15 +285,24 @@ export class TasksService {
       }
     }
 
+    let taskStatus: TaskStatus | null = null;
+
     if (dto.statusId) {
       const status = await this.taskStatusModel.findByPk(dto.statusId);
 
       if (!status) {
         throw new BadRequestException('Invalid task status');
       }
+
+      taskStatus = status;
     }
 
     await task.update(dto);
+
+    if (!taskStatus) {
+      taskStatus = await this.taskStatusModel.findByPk(task.statusId);
+    }
+
     await this.activityService.createActivity({
       userId: currentUser.id,
       action: 'TASK_UPDATED',
@@ -291,7 +310,8 @@ export class TasksService {
       entityId: task.id,
       metadata: {
         title: task.title,
-        statusId: task.statusId,
+        ...(taskStatus ? { taskStatus: taskStatus.name } : {}),
+        dueDate: task.dueDate,
       },
     });
 
@@ -308,7 +328,13 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    await this.validateAssignableUsers(task.projectId, dto.userIds);
+    const assignedUsers = await this.validateAssignableUsers(
+      task.projectId,
+      dto.userIds,
+    );
+    const project = await this.projectModel.findByPk(task.projectId);
+    const taskStatus = await this.taskStatusModel.findByPk(task.statusId);
+
     await this.createTaskAssignments(id, dto.userIds, currentUser.id);
     await this.activityService.createActivity({
       userId: currentUser.id,
@@ -316,7 +342,10 @@ export class TasksService {
       entityType: 'TASK',
       entityId: task.id,
       metadata: {
-        assignedUserIds: dto.userIds,
+        title: task.title,
+        ...(project ? { projectTitle: project.title } : {}),
+        ...(taskStatus ? { taskStatus: taskStatus.name } : {}),
+        assignedUserNames: assignedUsers.map((user) => user.name),
       },
     });
     return {
@@ -364,6 +393,8 @@ export class TasksService {
         'One or more assigned users are not members of this project',
       );
     }
+
+    return users;
   }
 
   private async createTaskAssignments(

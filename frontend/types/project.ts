@@ -30,6 +30,7 @@ export type ProjectListResponse = {
 export type CreateProjectRequest = {
   title: string;
   description?: string;
+  status: ProjectStatus;
   deadline?: string;
   memberIds?: number[];
 };

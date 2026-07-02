@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { Shift } from './entities/shift.model';
 import { User } from 'src/modules/users/entities/user.model';
+import { CreateShiftDto } from './dto/create-shift.dto';
 import { ShiftQueryDto } from './dto/shift-query.dto';
 import { CurrentUser } from '../../common/types/current-user.type';
 import { UserRole } from '../../common/enums/user-role.enum';
@@ -24,6 +25,64 @@ export class ShiftsService {
 
     private readonly activityService: ActivityService,
   ) {}
+
+  async create(dto: CreateShiftDto, currentUser: CurrentUser) {
+    const user = await this.userModel.findByPk(dto.userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role !== UserRole.EMPLOYEE) {
+      throw new BadRequestException(
+        'Shift can only be created for an employee',
+      );
+    }
+
+    const clockIn = new Date(dto.clockIn);
+    const clockOut = new Date(dto.clockOut);
+
+    if (clockOut <= clockIn) {
+      throw new BadRequestException('Clock out must be after clock in');
+    }
+
+    const shift = await this.shiftModel.create({
+      userId: dto.userId,
+      clockIn,
+      clockOut,
+      shiftType: dto.shiftType?.trim() || 'REGULAR',
+    });
+
+    const shiftId = Number(shift.id);
+
+    await this.activityService.createActivity({
+      userId: currentUser.id,
+      action: 'SHIFT_CREATED',
+      entityType: 'SHIFT',
+      entityId: shiftId,
+      metadata: {
+        targetUserId: dto.userId,
+        clockIn: shift.clockIn,
+        clockOut: shift.clockOut,
+        shiftType: shift.shiftType,
+        totalHours: this.calculateWorkedHours(clockIn, clockOut),
+      },
+    });
+
+    const createdShift = await this.shiftModel.findByPk(shiftId, {
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name', 'email', 'role'],
+        },
+      ],
+    });
+
+    return {
+      message: 'Shift created successfully',
+      data: createdShift ?? shift,
+    };
+  }
 
   async clockIn(currentUser: CurrentUser) {
     const activeShift = await this.shiftModel.findOne({
@@ -48,6 +107,10 @@ export class ShiftsService {
       action: 'SHIFT_CLOCK_IN',
       entityType: 'SHIFT',
       entityId: shift.id,
+      metadata: {
+        clockIn: shift.clockIn,
+        shiftType: shift.shiftType,
+      },
     });
 
     return {
@@ -86,6 +149,8 @@ export class ShiftsService {
       entityType: 'SHIFT',
       entityId: activeShift.id,
       metadata: {
+        clockIn: activeShift.clockIn,
+        clockOut: activeShift.clockOut,
         totalHours,
       },
     });
@@ -126,6 +191,11 @@ export class ShiftsService {
       action: 'SHIFT_DELETED',
       entityType: 'SHIFT',
       entityId: shift.id,
+      metadata: {
+        clockIn: shift.clockIn,
+        clockOut: shift.clockOut,
+        shiftType: shift.shiftType,
+      },
     });
 
     return {

@@ -2,6 +2,7 @@ import { baseApi } from "./baseApi";
 import type { ApiResponse } from "@/types/common";
 import type {
   ClockOutResponse,
+  CreateShiftRequest,
   GetShiftsQuery,
   Shift,
   ShiftListResponse,
@@ -32,6 +33,15 @@ export const shiftApi = baseApi.injectEndpoints({
     getShiftById: builder.query<ApiResponse<Shift>, number>({
       query: (id) => `/shifts/${id}`,
       providesTags: ["Shifts"],
+    }),
+
+    createShift: builder.mutation<ApiResponse<Shift>, CreateShiftRequest>({
+      query: (body) => ({
+        url: "/shifts",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Shifts", "Dashboard"],
     }),
 
     clockIn: builder.mutation<ApiResponse<Shift>, void>({
@@ -65,6 +75,7 @@ export const {
   useGetActiveShiftQuery,
   useGetWeeklyHoursQuery,
   useGetShiftByIdQuery,
+  useCreateShiftMutation,
   useClockInMutation,
   useClockOutMutation,
   useDeleteShiftMutation,

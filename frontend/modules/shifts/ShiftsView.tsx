@@ -1,6 +1,7 @@
 "use client";
 import { StatusBadge } from "@/lib/statusColors";
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { useSelector } from "react-redux";
 import ActionMenu from "@/components/shared/ActionMenu";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -11,19 +12,21 @@ import ErrorState from "@/components/shared/ErrorState";
 import EmptyState from "@/components/shared/EmptyState";
 import SelectFilter from "@/components/shared/SelectFilter";
 import SearchInput from "@/components/shared/SearchInput";
-import { useDeleteShiftMutation } from "@/redux/services/shiftApi";
+import AppModal from "@/components/shared/modal/AppModal";
 import type { RootState } from "@/redux/store";
 import type { Shift } from "@/types/shift";
 
 import {
   useClockInMutation,
   useClockOutMutation,
+  useDeleteShiftMutation,
   useGetActiveShiftQuery,
   useGetShiftsQuery,
   useGetWeeklyHoursQuery,
 } from "@/redux/services/shiftApi";
 
 import ActiveShiftCard from "./ActiveShiftCard";
+import ShiftCreateForm from "./ShiftCreateForm";
 import WeeklyHoursCard from "./WeeklyHoursCard";
 import {
   formatDateTime,
@@ -46,6 +49,7 @@ export default function ShiftsView() {
 
   const [sortBy, setSortBy] = useState("clockIn");
   const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
+  const [createOpen, setCreateOpen] = useState(false);
   const [deleteShift]= useDeleteShiftMutation();
   const {
     data: activeShiftResponse,
@@ -115,6 +119,12 @@ export default function ShiftsView() {
     }
   }
 
+  function handleCreateShiftSuccess() {
+    setCreateOpen(false);
+    refetchShifts();
+    refetchWeeklyHours();
+  }
+
     async function handleDeleteShift(shift: Shift) {
   const confirmed = window.confirm("Delete this shift?");
   if (!confirmed) return;
@@ -181,14 +191,27 @@ export default function ShiftsView() {
     
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Shifts</h1>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Shifts</h1>
 
-          <p className="mt-1 text-sm text-gray-500">
-            {isAdmin
-              ? "View employee shift history and weekly worked hours."
-              : "Clock in, clock out, and view your shift history."}
-          </p>
+            <p className="mt-1 text-sm text-gray-500">
+              {isAdmin
+                ? "View employee shift history and weekly worked hours."
+                : "Clock in, clock out, and view your shift history."}
+            </p>
+          </div>
+
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm text-white"
+            >
+              <Plus size={16} />
+              Create Shift
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -351,6 +374,18 @@ export default function ShiftsView() {
           onLimitChange={setLimit}
         />
       </div>
+
+      <AppModal
+        open={createOpen}
+        title="Create Shift"
+        description="Create a completed shift for an employee."
+        onClose={() => setCreateOpen(false)}
+      >
+        <ShiftCreateForm
+          onCancel={() => setCreateOpen(false)}
+          onSuccess={handleCreateShiftSuccess}
+        />
+      </AppModal>
     </DashboardLayout>
   );
 }

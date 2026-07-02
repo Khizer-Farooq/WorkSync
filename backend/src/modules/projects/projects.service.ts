@@ -37,7 +37,7 @@ export class ProjectsService {
       description: dto.description || null,
       deadline: dto.deadline || null,
       createdBy: currentUser.id,
-      status: ProjectStatus.ACTIVE,
+      status: dto.status ? dto.status : ProjectStatus.ACTIVE,
     });
 
 
@@ -51,9 +51,7 @@ export class ProjectsService {
       action: 'PROJECT_CREATED',
       entityType: 'PROJECT',
       entityId: project.id,
-      metadata: {
-        title: project.title,
-      },
+      metadata: this.getProjectActivityMetadata(project),
     });
 
     return {
@@ -76,9 +74,7 @@ export class ProjectsService {
     action: 'PROJECT_DELETED',
     entityType: 'PROJECT',
     entityId: id,
-    metadata: {
-      title: project.title,
-    },
+    metadata: this.getProjectActivityMetadata(project),
   });
 
   return {
@@ -104,6 +100,8 @@ export class ProjectsService {
     throw new NotFoundException('Project member not found');
   }
 
+  const removedUser = await this.userModel.findByPk(userId);
+
   await member.destroy();
 
   await this.activityService.createActivity({
@@ -112,8 +110,8 @@ export class ProjectsService {
     entityType: 'PROJECT',
     entityId: projectId,
     metadata: {
-      removedUserId: userId,
-      projectTitle: project.title,
+      ...this.getProjectActivityMetadata(project),
+      removedUserName: removedUser?.name,
     },
   });
 
@@ -279,9 +277,7 @@ export class ProjectsService {
       action: 'PROJECT_UPDATED',
       entityType: 'PROJECT',
       entityId: project.id,
-      metadata: {
-        title: project.title,
-      },
+      metadata: this.getProjectActivityMetadata(project),
     });
 
     return {
@@ -306,9 +302,7 @@ export class ProjectsService {
       action: 'PROJECT_ARCHIVED',
       entityType: 'PROJECT',
       entityId: project.id,
-      metadata: {
-        title: project.title,
-      },
+      metadata: this.getProjectActivityMetadata(project),
     });
 
     return {
@@ -354,6 +348,13 @@ export class ProjectsService {
     await this.projectMemberModel.bulkCreate(records, {
       ignoreDuplicates: true,
     });
+  }
+
+  private getProjectActivityMetadata(project: Project) {
+    return {
+      title: project.title,
+      projectStatus: project.status,
+    };
   }
 
   

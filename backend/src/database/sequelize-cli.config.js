@@ -11,4 +11,11 @@ module.exports = {
     seederStorage: 'sequelize',
     seederStorageTableName: 'SequelizeData',
   },
+  production: {
+    use_env_variable: 'DATABASE_DIRECT', // separate var, non-pooled
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: { require: true, rejectUnauthorized: false },
+    },
+  },
 };

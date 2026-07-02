@@ -12,6 +12,7 @@ export const projectSchema = z.object({
   title: z.string().min(1, "Project title is required"),
   description: z.string().optional(),
   deadline: z.string().optional(),
+  status: z.enum(["ACTIVE" , "ARCHIVED" , "COMPLETED" ,"CANCELED"]),
 });
 
 export type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -39,6 +40,7 @@ export default function ProjectEditForm({ project, onSuccess }: Props) {
       title: project.title,
       description: project.description || "",
       deadline: project.deadline || "",
+      status: project.status,
     });
   }, [project, reset]);
 
@@ -50,6 +52,7 @@ export default function ProjectEditForm({ project, onSuccess }: Props) {
           title: values.title,
           description: values.description,
           deadline: values.deadline || undefined,
+          status: values.status,
         },
       }).unwrap();
 
@@ -94,6 +97,19 @@ export default function ProjectEditForm({ project, onSuccess }: Props) {
         />
       </div>
 
+
+          <div>
+        <label className="text-sm font-medium text-gray-700">Status</label>
+        <select {...register("status")} className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900">
+          <option value="ACTIVE">Active</option>
+          <option value="ARCHIVED">Archived</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELED">Canceled</option>
+        </select>
+      
+
+
+      </div>
       <div>
         <label className="text-sm font-medium text-gray-700">Deadline</label>
 

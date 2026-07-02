@@ -34,6 +34,13 @@ export type ClockOutResponse = {
   totalHours: number;
 };
 
+export type CreateShiftRequest = {
+  userId: number;
+  clockIn: string;
+  clockOut: string;
+  shiftType?: string;
+};
+
 export type GetShiftsQuery = {
   page?: number;
   limit?: number;

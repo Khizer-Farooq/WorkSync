@@ -13,6 +13,7 @@ import { z } from "zod";
 export const projectSchema = z.object({
   title: z.string().min(1, "Project title is required"),
   description: z.string().optional(),
+  status: z.enum(["ACTIVE" , "ARCHIVED" , "COMPLETED" ,"CANCELED"]),
   deadline: z.string().optional(),
 });
 
@@ -24,7 +25,7 @@ type Props = {
 };
 
 export default function ProjectCreateForm({ onSuccess }: Props) {
-  
+
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [createProject, { isLoading }] = useCreateProjectMutation();
 
@@ -40,6 +41,7 @@ export default function ProjectCreateForm({ onSuccess }: Props) {
       title: "",
       description: "",
       deadline: "",
+      status: "ACTIVE",
     },
   });
 
@@ -50,6 +52,7 @@ export default function ProjectCreateForm({ onSuccess }: Props) {
         description: values.description,
         deadline: values.deadline || undefined,
         memberIds: selectedUsers.map((user) => user.id),
+        status: values.status,
       }).unwrap();
 
       reset();
@@ -95,6 +98,19 @@ export default function ProjectCreateForm({ onSuccess }: Props) {
           className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900"
           placeholder="Project description"
         />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-gray-700">Status</label>
+        <select {...register("status")} className="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900">
+          <option value="ACTIVE">Active</option>
+          <option value="ARCHIVED">Archived</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELED">Canceled</option>
+        </select>
+      
+
+
       </div>
 
       <div>

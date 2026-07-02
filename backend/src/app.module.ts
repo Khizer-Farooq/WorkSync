@@ -9,23 +9,30 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { TaskCommentsModule } from './modules/task-comments/task-comments.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
+import { ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
 
-    SequelizeModule.forRoot({
-      dialect: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      autoLoadModels: true,
-      synchronize: false,
-      logging: false,
+    SequelizeModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        dialect: 'postgres',
+        uri: config.get<string>('DATABASE_URL'),
+        autoLoadModels: true,
+        synchronize: false, // keep false in production, use migrations instead
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false, // Neon requires SSL
+          },
+        },
+      }),
     }),
+
 
     DepartmentsModule,
     UsersModule,
